@@ -54,6 +54,25 @@
 (def student-subject
   (table-with-casted-numbers student-subject-tbl :subject_id :student_id))
 
+(defn where*
+  "Apply projection to data"
+  [data condition]
+  (filter condition data))
+
+(defn limit*
+  "Take first count elements"
+  [data count]
+  (take count data))
+
+(defn order-by*
+  "Sort data by column"
+  [data column]
+  (sort-by column data))
+
+(where* student #(>= (:id %) 2))
+(limit* student 2)
+(order-by* student :year)
+
 (defn foo
   "I don't do a whole lot."
   [x]
