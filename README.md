@@ -59,3 +59,5 @@ student_id,subject_id
 (db/select student-subject :limit 2 :joins [[:student_id student :id] [:subject_id subject :id]])
 ({:surname Ivanov, :year 1998, :id 1, :subject_id 1, :student_id 1, :subject Math} {:surname Petrov, :year 1997, :id 1, :subject_id 1, :student_id 2, :subject Math})
 ```
+
+For more details look at [sample](https://github.com/dimorinny/csv-database/blob/master/src/csv_database/sample.clj)
