@@ -1,9 +1,4 @@
-(ns csv-database.core
-  (:require [clojure-csv.core :as csv]))
-
-(def student-tbl (csv/parse-csv (slurp "student.csv")))
-(def subject-tbl (csv/parse-csv (slurp "subject.csv")))
-(def student-subject-tbl (csv/parse-csv (slurp "student_subject.csv")))
+(ns csv-database.core)
 
 (defn table-keys
   "Return vector of table scheme keys"
@@ -49,30 +44,26 @@
     (->> parsed-table
       (map #(apply str-fields-to-int % fields)))))
 
-(def student (table-with-casted-numbers student-tbl :id :year))
-(def subject (table-with-casted-numbers subject-tbl :id))
-(def student-subject
-  (table-with-casted-numbers student-subject-tbl :subject_id :student_id))
-
 (defn where*
   "Apply projection to data"
   [data condition]
-  (filter condition data))
+  (if condition
+    (filter condition data)
+    data))
 
 (defn limit*
   "Take first count elements"
   [data count]
   (if count
-    (take count data)))
+    (take count data)
+    data))
 
 (defn order-by*
   "Sort data by column"
   [data column]
-  (sort-by column data))
-
-(where* student #(>= (:id %) 2))
-(limit* student 2)
-(order-by* student :year)
+  (if column
+    (sort-by column data)
+    data))
 
 (defn join*
   [data1 column1 data2 column2]
@@ -90,8 +81,6 @@
         (recur (join* data1 col1 data2 col2)
           (next joins))))))
 
-(perform-joins student-subject [[:student_id student :id] [:subject_id subject :id]])
-
 (defn select
   [data & {:keys [where limit order-by joins]}]
   (-> data
@@ -99,10 +88,3 @@
     (where* where)
     (order-by* order-by)
     (limit* limit)))
-
-(select student)
-
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
