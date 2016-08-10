@@ -62,7 +62,8 @@
 (defn limit*
   "Take first count elements"
   [data count]
-  (take count data))
+  (if count
+    (take count data)))
 
 (defn order-by*
   "Sort data by column"
@@ -72,6 +73,34 @@
 (where* student #(>= (:id %) 2))
 (limit* student 2)
 (order-by* student :year)
+
+(defn join*
+  [data1 column1 data2 column2]
+  (for [value data1]
+    (->> (filter #(= (column1 value) (column2 %)) data2)
+      (first)
+      (conj value))))
+
+(defn perform-joins
+  [data joins*]
+  (loop [data1 data joins joins*]
+    (if (empty? joins)
+      data1
+      (let [[col1 data2 col2] (first joins)]
+        (recur (join* data1 col1 data2 col2)
+          (next joins))))))
+
+(perform-joins student-subject [[:student_id student :id] [:subject_id subject :id]])
+
+(defn select
+  [data & {:keys [where limit order-by joins]}]
+  (-> data
+    (perform-joins joins)
+    (where* where)
+    (order-by* order-by)
+    (limit* limit)))
+
+(select student)
 
 (defn foo
   "I don't do a whole lot."
